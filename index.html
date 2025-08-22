@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kasir PKL Sederhana</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      :root {
+        --primary: #4361ee;
+        --secondary: #3f37c9;
+        --success: #4cc9f0;
+        --light: #f8f9fa;
+        --dark: #212529;
+      }
+
+      body {
+        background-color: #f5f7fb;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        padding-bottom: 20px;
+      }
+
+      .navbar-brand {
+        font-weight: 700;
+        color: var(--primary);
+      }
+
+      .card {
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border: none;
+        margin-bottom: 20px;
+      }
+
+      .card-header {
+        background-color: var(--primary);
+        color: white;
+        border-radius: 10px 10px 0 0 !important;
+        font-weight: 600;
+      }
+
+      .btn-primary {
+        background-color: var(--primary);
+        border-color: var(--primary);
+      }
+
+      .btn-primary:hover {
+        background-color: var(--secondary);
+        border-color: var(--secondary);
+      }
+
+      .btn-success {
+        background-color: var(--success);
+        border-color: var(--success);
+      }
+
+      .table th {
+        background-color: #e9ecef;
+      }
+
+      .product-item:hover {
+        background-color: #f0f5ff;
+        cursor: pointer;
+      }
+
+      .cart-item {
+        transition: all 0.2s;
+      }
+
+      .cart-item:hover {
+        background-color: #f8f9fa;
+      }
+
+      .total-price {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--primary);
+      }
+
+      .stat-card {
+        text-align: center;
+        padding: 15px;
+      }
+
+      .stat-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--primary);
+      }
+
+      .stat-label {
+        font-size: 0.9rem;
+        color: #6c757d;
+      }
+
+      .comparison-up {
+        color: #28a745;
+      }
+
+      .comparison-down {
+        color: #dc3545;
+      }
+
+      .comparison-same {
+        color: #ffc107;
+      }
+
+      .analisis-item {
+        margin-bottom: 10px;
+        padding: 10px;
+        border-radius: 5px;
+        background-color: #f8f9fa;
+      }
+
+      .chart-container {
+        position: relative;
+        height: 300px;
+        margin-top: 20px;
+      }
+
+      @media (max-width: 768px) {
+        .section-title {
+          font-size: 1.2rem;
+        }
+
+        .btn-sm-block {
+          display: block;
+          width: 100%;
+          margin-bottom: 5px;
+        }
+
+        .table-responsive {
+          font-size: 0.85rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+      <div class="container">
+        <a class="navbar-brand" href="#">
+          <i class="fas fa-cash-register me-2"></i>Kasir PKL
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="#produk-section"
+                ><i class="fas fa-box me-1"></i> Produk</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#keranjang-section"
+                ><i class="fas fa-shopping-cart me-1"></i> Keranjang</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#analisis-section"
+                ><i class="fas fa-chart-line me-1"></i> Analisis</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container mt-4">
+      <!-- Alert Notifikasi -->
+      <div id="alert-placeholder"></div>
+
+      <!-- Section Manajemen Produk -->
+      <div class="card mb-4" id="produk-section">
+        <div
+          class="card-header d-flex justify-content-between align-items-center"
+        >
+          <span><i class="fas fa-box me-2"></i>Manajemen Produk</span>
+          <button class="btn btn-sm btn-danger" id="reset-produk-btn">
+            <i class="fas fa-trash me-1"></i>Reset Produk
+          </button>
+        </div>
+        <div class="card-body">
+          <form id="tambah-produk-form" class="row g-3 mb-4">
+            <div class="col-md-5">
+              <label for="nama-produk" class="form-label">Nama Produk</label>
+              <input
+                type="text"
+                class="form-control"
+                id="nama-produk"
+                required
+              />
+            </div>
+            <div class="col-md-4">
+              <label for="harga-produk" class="form-label">Harga (Rp)</label>
+              <input
+                type="number"
+                class="form-control"
+                id="harga-produk"
+                min="0"
+                required
+              />
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+              <button type="submit" class="btn btn-primary w-100">
+                <i class="fas fa-plus me-1"></i>Tambah
+              </button>
+            </div>
+          </form>
+
+          <div class="table-responsive">
+            <table class="table table-striped table-hover">
+              <thead>
+                <tr>
+                  <th width="10%">No</th>
+                  <th width="50%">Nama Produk</th>
+                  <th width="20%">Harga</th>
+                  <th width="20%">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="daftar-produk">
+                <!-- Daftar produk akan diisi oleh JavaScript -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section Keranjang -->
+      <div class="card mb-4" id="keranjang-section">
+        <div
+          class="card-header d-flex justify-content-between align-items-center"
+        >
+          <span
+            ><i class="fas fa-shopping-cart me-2"></i>Keranjang Belanja</span
+          >
+          <button class="btn btn-sm btn-danger" id="reset-keranjang-btn">
+            <i class="fas fa-trash me-1"></i>Reset Keranjang
+          </button>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th width="40%">Nama Produk</th>
+                  <th width="15%">Harga</th>
+                  <th width="15%">Jumlah</th>
+                  <th width="20%">Subtotal</th>
+                  <th width="10%">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="keranjang-items">
+                <!-- Item keranjang akan diisi oleh JavaScript -->
+              </tbody>
+            </table>
+          </div>
+
+          <div class="d-flex justify-content-end mt-3">
+            <div class="total-price">
+              Total: Rp <span id="total-harga">0</span>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-end mt-3 gap-2">
+            <button class="btn btn-success" id="checkout-btn">
+              <i class="fas fa-check me-1"></i>Selesaikan Transaksi
+            </button>
+            <button class="btn btn-primary" id="export-pdf-btn">
+              <i class="fas fa-file-pdf me-1"></i>Export PDF
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section Analisis Penjualan -->
+      <div class="card mb-4" id="analisis-section">
+        <div
+          class="card-header d-flex justify-content-between align-items-center"
+        >
+          <span><i class="fas fa-chart-line me-2"></i>Analisis Penjualan</span>
+          <div>
+            <select
+              id="periode-analisis"
+              class="form-select form-select-sm d-inline-block"
+              style="width: auto"
+            >
+              <option value="hari">Harian</option>
+              <option value="bulan">Bulanan</option>
+              <option value="tahun">Tahunan</option>
+            </select>
+            <button
+              class="btn btn-sm btn-primary ms-2"
+              id="export-analisis-btn"
+            >
+              <i class="fas fa-download me-1"></i>Unduh Analisis
+            </button>
+            <button class="btn btn-sm btn-danger ms-2" id="reset-harian-btn">
+              <i class="fas fa-trash me-1"></i>Reset Data
+            </button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div id="analisis-container">
+            <!-- Konten analisis akan diisi oleh JavaScript -->
+          </div>
+
+          <div class="chart-container">
+            <canvas id="omzet-chart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Input Jumlah -->
+    <div class="modal fade" id="jumlahModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Tambah ke Keranjang</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p>Produk: <span id="modal-produk-nama"></span></p>
+            <p>Harga: Rp <span id="modal-produk-harga"></span></p>
+            <div class="mb-3">
+              <label for="jumlah-input" class="form-label">Jumlah</label>
+              <input
+                type="number"
+                class="form-control"
+                id="jumlah-input"
+                min="1"
+                value="1"
+              />
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Batal
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              id="tambah-ke-keranjang-btn"
+            >
+              Tambah
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap & jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- jsPDF dan autotable -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
+    <script>
+      // Inisialisasi variabel global
+      let produkList = JSON.parse(localStorage.getItem("produkList")) || [];
+      let keranjang = JSON.parse(localStorage.getItem("keranjang")) || [];
+      let omzetHarian = JSON.parse(localStorage.getItem("omzetHarian")) || {};
+      let selectedProduct = null;
+      let omzetChart = null;
+
+      // Format angka ke Rupiah
+      function formatRupiah(angka) {
+        return new Intl.NumberFormat("id-ID").format(angka);
+      }
+
+      // Tampilkan alert
+      function showAlert(message, type) {
+        const alertPlaceholder = document.getElementById("alert-placeholder");
+        const alert = document.createElement("div");
+        alert.className = `alert alert-${type} alert-dismissible fade show`;
+        alert.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+        alertPlaceholder.appendChild(alert);
+
+        // Hapus alert setelah 3 detik
+        setTimeout(() => {
+          alert.remove();
+        }, 3000);
+      }
+
+      // Simpan data ke localStorage
+      function saveToLocalStorage() {
+        localStorage.setItem("produkList", JSON.stringify(produkList));
+        localStorage.setItem("keranjang", JSON.stringify(keranjang));
+        localStorage.setItem("omzetHarian", JSON.stringify(omzetHarian));
+      }
+
+      // Render daftar produk
+      function renderProdukList() {
+        const daftarProduk = document.getElementById("daftar-produk");
+        daftarProduk.innerHTML = "";
+
+        produkList.forEach((produk, index) => {
+          const row = document.createElement("tr");
+          row.className = "product-item";
+          row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${produk.nama}</td>
+                    <td>Rp ${formatRupiah(produk.harga)}</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary pesan-btn" data-id="${
+                          produk.id
+                        }">
+                            <i class="fas fa-cart-plus me-1"></i>Pesan
+                        </button>
+                    </td>
+                `;
+          daftarProduk.appendChild(row);
+        });
+
+        // Tambahkan event listener untuk tombol pesan
+        document.querySelectorAll(".pesan-btn").forEach((btn) => {
+          btn.addEventListener("click", function () {
+            const productId = parseInt(this.getAttribute("data-id"));
+            selectedProduct = produkList.find((p) => p.id === productId);
+
+            document.getElementById("modal-produk-nama").textContent =
+              selectedProduct.nama;
+            document.getElementById("modal-produk-harga").textContent =
+              formatRupiah(selectedProduct.harga);
+            document.getElementById("jumlah-input").value = 1;
+
+            const modal = new bootstrap.Modal(
+              document.getElementById("jumlahModal")
+            );
+            modal.show();
+          });
+        });
+      }
+
+      // Render keranjang
+      function renderKeranjang() {
+        const keranjangItems = document.getElementById("keranjang-items");
+        keranjangItems.innerHTML = "";
+
+        let totalHarga = 0;
+
+        keranjang.forEach((item) => {
+          const subtotal = item.harga * item.jumlah;
+          totalHarga += subtotal;
+
+          const row = document.createElement("tr");
+          row.className = "cart-item";
+          row.innerHTML = `
+                    <td>${item.nama}</td>
+                    <td>Rp ${formatRupiah(item.harga)}</td>
+                    <td>
+                        <input type="number" class="form-control form-control-sm jumlah-input" 
+                               data-id="${item.id}" value="${
+            item.jumlah
+          }" min="1">
+                    </td>
+                    <td>Rp ${formatRupiah(subtotal)}</td>
+                    <td>
+                        <button class="btn btn-sm btn-danger hapus-item-btn" data-id="${
+                          item.id
+                        }">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+          keranjangItems.appendChild(row);
+        });
+
+        document.getElementById("total-harga").textContent =
+          formatRupiah(totalHarga);
+
+        // Tambahkan event listener untuk input jumlah
+        document.querySelectorAll(".jumlah-input").forEach((input) => {
+          input.addEventListener("change", function () {
+            const productId = parseInt(this.getAttribute("data-id"));
+            const newJumlah = parseInt(this.value);
+
+            if (newJumlah < 1) {
+              this.value = 1;
+              return;
+            }
+
+            const itemIndex = keranjang.findIndex(
+              (item) => item.id === productId
+            );
+            if (itemIndex !== -1) {
+              keranjang[itemIndex].jumlah = newJumlah;
+              saveToLocalStorage();
+              renderKeranjang();
+            }
+          });
+        });
+
+        // Tambahkan event listener untuk tombol hapus
+        document.querySelectorAll(".hapus-item-btn").forEach((btn) => {
+          btn.addEventListener("click", function () {
+            const productId = parseInt(this.getAttribute("data-id"));
+            keranjang = keranjang.filter((item) => item.id !== productId);
+            saveToLocalStorage();
+            renderKeranjang();
+            showAlert("Produk dihapus dari keranjang", "success");
+          });
+        });
+      }
+
+      // Fungsi untuk mendapatkan data omzet berdasarkan periode
+      function getOmzetByPeriode(periode) {
+        const result = {};
+
+        for (const [tanggal, omzet] of Object.entries(omzetHarian)) {
+          const dateParts = tanggal.split("-");
+          let key;
+
+          if (periode === "hari") {
+            key = tanggal;
+          } else if (periode === "bulan") {
+            key = `${dateParts[0]}-${dateParts[1]}`; // Tahun-Bulan
+          } else if (periode === "tahun") {
+            key = dateParts[0]; // Tahun
+          }
+
+          if (result[key]) {
+            result[key] += omzet;
+          } else {
+            result[key] = omzet;
+          }
+        }
+
+        return result;
+      }
+
+      // Fungsi untuk mendapatkan label periode
+      function getLabelPeriode(periode, key) {
+        if (periode === "hari") {
+          const [tahun, bulan, hari] = key.split("-");
+          return `${hari}/${bulan}/${tahun}`;
+        } else if (periode === "bulan") {
+          const [tahun, bulan] = key.split("-");
+          const bulanNames = [
+            "Januari",
+            "Februari",
+            "Maret",
+            "April",
+            "Mei",
+            "Juni",
+            "Juli",
+            "Agustus",
+            "September",
+            "Oktober",
+            "November",
+            "Desember",
+          ];
+          return `${bulanNames[parseInt(bulan) - 1]} ${tahun}`;
+        } else if (periode === "tahun") {
+          return key;
+        }
+      }
+
+      // Fungsi untuk mendapatkan nama bulan dari angka
+      function getNamaBulan(angkaBulan) {
+        const bulanNames = [
+          "Januari",
+          "Februari",
+          "Maret",
+          "April",
+          "Mei",
+          "Juni",
+          "Juli",
+          "Agustus",
+          "September",
+          "Oktober",
+          "November",
+          "Desember",
+        ];
+        return bulanNames[parseInt(angkaBulan) - 1];
+      }
+
+      // Render analisis penjualan
+      function renderAnalisis() {
+        const periode = document.getElementById("periode-analisis").value;
+        const omzetPeriode = getOmzetByPeriode(periode);
+
+        // Urutkan berdasarkan kunci (tanggal/bulan/tahun)
+        const sortedKeys = Object.keys(omzetPeriode).sort();
+
+        if (sortedKeys.length === 0) {
+          document.getElementById("analisis-container").innerHTML = `
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Belum ada data penjualan untuk dianalisis.
+                    </div>
+                `;
+
+          if (omzetChart) {
+            omzetChart.destroy();
+            omzetChart = null;
+          }
+          return;
+        }
+
+        // Ambil 5 periode terakhir untuk ditampilkan
+        const recentKeys = sortedKeys.slice(-5);
+        const recentValues = recentKeys.map((key) => omzetPeriode[key]);
+
+        // Hitung perbandingan dengan periode sebelumnya
+        let analisisHTML = '<div class="row">';
+
+        for (let i = 0; i < recentKeys.length; i++) {
+          const key = recentKeys[i];
+          const omzet = omzetPeriode[key];
+          const label = getLabelPeriode(periode, key);
+
+          let comparisonHTML = "";
+          if (i > 0) {
+            const prevOmzet = omzetPeriode[recentKeys[i - 1]];
+            const difference = omzet - prevOmzet;
+            const percentage =
+              prevOmzet > 0 ? (difference / prevOmzet) * 100 : 100;
+
+            let comparisonClass = "comparison-same";
+            let icon = "fa-equals";
+
+            if (difference > 0) {
+              comparisonClass = "comparison-up";
+              icon = "fa-arrow-up";
+            } else if (difference < 0) {
+              comparisonClass = "comparison-down";
+              icon = "fa-arrow-down";
+            }
+
+            comparisonHTML = `
+                        <div class="${comparisonClass}">
+                            <i class="fas ${icon} me-1"></i>
+                            ${difference > 0 ? "+" : ""}${formatRupiah(
+              difference
+            )} (${percentage > 0 ? "+" : ""}${percentage.toFixed(2)}%)
+                        </div>
+                    `;
+          }
+
+          analisisHTML += `
+                    <div class="col-md-4 mb-3">
+                        <div class="stat-card card">
+                            <div class="stat-value">Rp ${formatRupiah(
+                              omzet
+                            )}</div>
+                            <div class="stat-label">${label}</div>
+                            ${comparisonHTML}
+                        </div>
+                    </div>
+                `;
+        }
+
+        analisisHTML += "</div>";
+        document.getElementById("analisis-container").innerHTML = analisisHTML;
+
+        // Render chart
+        const ctx = document.getElementById("omzet-chart").getContext("2d");
+
+        if (omzetChart) {
+          omzetChart.destroy();
+        }
+
+        omzetChart = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: recentKeys.map((key) => getLabelPeriode(periode, key)),
+            datasets: [
+              {
+                label: `Omzet ${
+                  periode === "hari"
+                    ? "Harian"
+                    : periode === "bulan"
+                    ? "Bulanan"
+                    : "Tahunan"
+                } (Rp)`,
+                data: recentValues,
+                backgroundColor: "rgba(75, 192, 192, 0.5)",
+                borderColor: "rgba(75, 192, 192, 1)",
+                borderWidth: 1,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                ticks: {
+                  callback: function (value) {
+                    return "Rp " + formatRupiah(value);
+                  },
+                },
+              },
+            },
+            plugins: {
+              tooltip: {
+                callbacks: {
+                  label: function (context) {
+                    return "Omzet: Rp " + formatRupiah(context.raw);
+                  },
+                },
+              },
+            },
+          },
+        });
+      }
+
+      // Export PDF untuk transaksi
+      function exportPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        const today = new Date().toLocaleDateString("id-ID", {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
+
+        // Judul
+        doc.setFontSize(18);
+        doc.text("Laporan Transaksi", 105, 15, { align: "center" });
+        doc.setFontSize(12);
+        doc.text(today, 105, 22, { align: "center" });
+
+        // Data transaksi
+        let totalHarga = 0;
+        const tableData = keranjang.map((item) => {
+          const subtotal = item.harga * item.jumlah;
+          totalHarga += subtotal;
+          return [
+            item.nama,
+            `Rp ${formatRupiah(item.harga)}`,
+            item.jumlah,
+            `Rp ${formatRupiah(subtotal)}`,
+          ];
+        });
+
+        // Tambahkan baris total
+        tableData.push([
+          {
+            content: "TOTAL",
+            colSpan: 3,
+            styles: { fontStyle: "bold", halign: "right" },
+          },
+          {
+            content: `Rp ${formatRupiah(totalHarga)}`,
+            styles: { fontStyle: "bold" },
+          },
+        ]);
+
+        // Buat tabel
+        doc.autoTable({
+          startY: 30,
+          head: [["Produk", "Harga", "Jumlah", "Subtotal"]],
+          body: tableData,
+          theme: "grid",
+          headStyles: {
+            fillColor: [67, 97, 238],
+          },
+        });
+
+        // Simpan PDF
+        doc.save(
+          `laporan-transaksi-${new Date().toISOString().split("T")[0]}.pdf`
+        );
+      }
+
+      // Export PDF untuk analisis
+      function exportAnalisisPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        const periode = document.getElementById("periode-analisis").value;
+        const omzetPeriode = getOmzetByPeriode(periode);
+        const sortedKeys = Object.keys(omzetPeriode).sort();
+        const recentKeys = sortedKeys.slice(-5);
+
+        const today = new Date().toLocaleDateString("id-ID", {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
+
+        // Judul
+        doc.setFontSize(18);
+        doc.text(
+          `Laporan Analisis Penjualan ${
+            periode === "hari"
+              ? "Harian"
+              : periode === "bulan"
+              ? "Bulanan"
+              : "Tahunan"
+          }`,
+          105,
+          15,
+          { align: "center" }
+        );
+        doc.setFontSize(12);
+        doc.text(`Dicetak pada: ${today}`, 105, 22, { align: "center" });
+
+        // Data analisis
+        const tableData = recentKeys.map((key) => {
+          const omzet = omzetPeriode[key];
+          const label = getLabelPeriode(periode, key);
+
+          return [label, `Rp ${formatRupiah(omzet)}`];
+        });
+
+        // Buat tabel
+        doc.autoTable({
+          startY: 30,
+          head: [["Periode", "Omzet"]],
+          body: tableData,
+          theme: "grid",
+          headStyles: {
+            fillColor: [67, 97, 238],
+          },
+        });
+
+        // Hitung statistik
+        const lastKey = recentKeys[recentKeys.length - 1];
+        const lastOmzet = omzetPeriode[lastKey];
+
+        const prevKey = recentKeys[recentKeys.length - 2];
+        const prevOmzet = prevKey ? omzetPeriode[prevKey] : 0;
+
+        const difference = lastOmzet - prevOmzet;
+        const percentage = prevOmzet > 0 ? (difference / prevOmzet) * 100 : 100;
+
+        let status = "";
+        if (difference > 0) {
+          status = `Peningkatan ${percentage.toFixed(
+            2
+          )}% dari periode sebelumnya`;
+        } else if (difference < 0) {
+          status = `Penurunan ${Math.abs(percentage).toFixed(
+            2
+          )}% dari periode sebelumnya`;
+        } else {
+          status = "Stabil dari periode sebelumnya";
+        }
+
+        // Tambahkan statistik
+        doc.autoTable({
+          startY: doc.lastAutoTable.finalY + 10,
+          body: [
+            ["Periode Terakhir", getLabelPeriode(periode, lastKey)],
+            ["Omzet", `Rp ${formatRupiah(lastOmzet)}`],
+            ["Status", status],
+          ],
+          theme: "grid",
+          styles: {
+            cellPadding: 5,
+            fontSize: 12,
+          },
+        });
+
+        // Simpan PDF
+        doc.save(
+          `analisis-penjualan-${periode}-${
+            new Date().toISOString().split("T")[0]
+          }.pdf`
+        );
+      }
+
+      // Inisialisasi aplikasi
+      document.addEventListener("DOMContentLoaded", function () {
+        // Render data awal
+        renderProdukList();
+        renderKeranjang();
+        renderAnalisis();
+
+        // Event listener untuk form tambah produk
+        document
+          .getElementById("tambah-produk-form")
+          .addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const namaInput = document.getElementById("nama-produk");
+            const hargaInput = document.getElementById("harga-produk");
+
+            const nama = namaInput.value.trim();
+            const harga = parseInt(hargaInput.value);
+
+            if (!nama || isNaN(harga) || harga < 0) {
+              showAlert("Mohon isi form dengan benar", "danger");
+              return;
+            }
+
+            const newProduct = {
+              id:
+                produkList.length > 0
+                  ? Math.max(...produkList.map((p) => p.id)) + 1
+                  : 1,
+              nama: nama,
+              harga: harga,
+            };
+
+            produkList.push(newProduct);
+            saveToLocalStorage();
+            renderProdukList();
+
+            namaInput.value = "";
+            hargaInput.value = "";
+
+            showAlert("Produk berhasil ditambahkan", "success");
+          });
+
+        // Event listener untuk tombol tambah ke keranjang
+        document
+          .getElementById("tambah-ke-keranjang-btn")
+          .addEventListener("click", function () {
+            const jumlah = parseInt(
+              document.getElementById("jumlah-input").value
+            );
+
+            if (isNaN(jumlah) || jumlah < 1) {
+              showAlert("Jumlah harus minimal 1", "danger");
+              return;
+            }
+
+            const existingItemIndex = keranjang.findIndex(
+              (item) => item.id === selectedProduct.id
+            );
+
+            if (existingItemIndex !== -1) {
+              keranjang[existingItemIndex].jumlah += jumlah;
+            } else {
+              keranjang.push({
+                id: selectedProduct.id,
+                nama: selectedProduct.nama,
+                harga: selectedProduct.harga,
+                jumlah: jumlah,
+              });
+            }
+
+            saveToLocalStorage();
+            renderKeranjang();
+
+            const modal = bootstrap.Modal.getInstance(
+              document.getElementById("jumlahModal")
+            );
+            modal.hide();
+
+            showAlert("Produk ditambahkan ke keranjang", "success");
+          });
+
+        // Event listener untuk tombol checkout
+        document
+          .getElementById("checkout-btn")
+          .addEventListener("click", function () {
+            if (keranjang.length === 0) {
+              showAlert("Keranjang masih kosong", "warning");
+              return;
+            }
+
+            let totalHarga = 0;
+            keranjang.forEach((item) => {
+              totalHarga += item.harga * item.jumlah;
+            });
+
+            const today = new Date().toISOString().split("T")[0];
+
+            if (omzetHarian[today]) {
+              omzetHarian[today] += totalHarga;
+            } else {
+              omzetHarian[today] = totalHarga;
+            }
+
+            keranjang = [];
+            saveToLocalStorage();
+            renderKeranjang();
+            renderAnalisis();
+
+            showAlert(
+              `Transaksi berhasil! Total: Rp ${formatRupiah(totalHarga)}`,
+              "success"
+            );
+          });
+
+        // Event listener untuk tombol export PDF
+        document
+          .getElementById("export-pdf-btn")
+          .addEventListener("click", function () {
+            if (keranjang.length === 0) {
+              showAlert("Tidak ada data untuk diexport", "warning");
+              return;
+            }
+
+            exportPDF();
+            showAlert("PDF berhasil diexport", "success");
+          });
+
+        // Event listener untuk tombol export analisis PDF
+        document
+          .getElementById("export-analisis-btn")
+          .addEventListener("click", function () {
+            if (Object.keys(omzetHarian).length === 0) {
+              showAlert("Tidak ada data analisis untuk diexport", "warning");
+              return;
+            }
+
+            exportAnalisisPDF();
+            showAlert("Analisis berhasil diexport", "success");
+          });
+
+        // Event listener untuk tombol reset produk
+        document
+          .getElementById("reset-produk-btn")
+          .addEventListener("click", function () {
+            if (confirm("Apakah Anda yakin ingin menghapus semua produk?")) {
+              produkList = [];
+              saveToLocalStorage();
+              renderProdukList();
+              showAlert("Semua produk telah direset", "success");
+            }
+          });
+
+        // Event listener untuk tombol reset keranjang
+        document
+          .getElementById("reset-keranjang-btn")
+          .addEventListener("click", function () {
+            if (confirm("Apakah Anda yakin ingin mengosongkan keranjang?")) {
+              keranjang = [];
+              saveToLocalStorage();
+              renderKeranjang();
+              showAlert("Keranjang telah dikosongkan", "success");
+            }
+          });
+
+        // Event listener untuk tombol reset data harian
+        document
+          .getElementById("reset-harian-btn")
+          .addEventListener("click", function () {
+            if (
+              confirm("Apakah Anda yakin ingin menghapus semua data penjualan?")
+            ) {
+              omzetHarian = {};
+              saveToLocalStorage();
+              renderAnalisis();
+              showAlert("Data penjualan telah direset", "success");
+            }
+          });
+
+        // Event listener untuk perubahan periode analisis
+        document
+          .getElementById("periode-analisis")
+          .addEventListener("change", function () {
+            renderAnalisis();
+          });
+      });
+    </script>
+  </body>
+</html>
