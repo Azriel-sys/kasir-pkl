@@ -1,1 +1,1 @@
-# kasir-pkl
+# kalkulator-kasir
